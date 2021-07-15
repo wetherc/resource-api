@@ -1,0 +1,16 @@
+# Ignore everything
+*
+
+# But descend into directories
+!*/
+
+# And whitelist certain filetypes
+!*.py
+!*.yaml
+!*.json
+
+# And certain dotfiles
+!.gitignore
+!.arclint
+!.arcconfig
+
