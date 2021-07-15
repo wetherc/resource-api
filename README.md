@@ -34,3 +34,12 @@ you can access the REST API at `localhost:8080/v1/resources/`. This endpoint
 accepts 2 optional URL parameters, `cpu=<float>` and `ram=<int>`, where
 `cpu` is the minimum number of CPU units a node must have and `ram` is
 the minimum amount of system RAM in megabytes.
+
+`minikube delete` will deprovision this cluster and destroy all associated
+resources.
+
+
+## Caveats
+
+Please note that GitHub is only hosting a mirror of this repository and is not
+the authoritative source. Pull requests cannot be accepted.
