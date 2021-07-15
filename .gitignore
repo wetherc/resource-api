@@ -17,3 +17,5 @@
 !.arclint
 !.arcconfig
 
+# But still explicitly ignore generated cruft
+*.ipynb_checkpoints/

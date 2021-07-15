@@ -56,4 +56,4 @@ set -e
 
 
 # Minikube startup
-minikube start --nodes ${nodes}
+minikube start --nodes ${nodes} --profile resmon

@@ -27,17 +27,18 @@ def update_node_list(k8s_client=v1):
         time.sleep(10)
 
 
+t = threading.Thread(target=update_node_list, args=(v1,))
+t.daemon = True
+t.start()
+t.setName('nodeUpdater')
+
+
 @app.route("/")
 def hello_world():
-    return json.dumps(NODES)
+    return NODES
 
 
 if __name__ == '__main__':
-    t = threading.Thread(target=update_node_list, args=(v1,))
-    t.daemon = True
-    t.start()
-    t.setName('nodeUpdater')
-
     app.run(
         debug=True,
         host='0.0.0.0',

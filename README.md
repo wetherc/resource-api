@@ -35,7 +35,7 @@ accepts 2 optional URL parameters, `cpu=<float>` and `ram=<int>`, where
 `cpu` is the minimum number of CPU units a node must have and `ram` is
 the minimum amount of system RAM in megabytes.
 
-`minikube delete` will deprovision this cluster and destroy all associated
+`minikube delete --profile resmon` will deprovision this cluster and destroy all associated
 resources.
 
 
