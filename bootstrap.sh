@@ -28,8 +28,24 @@ check_binary () {
 }
 
 
+# Get user inputs
+
+nodes=4
+while getopts "n:" opt; do
+  case ${opt} in
+    n) nodes="${OPTARG}"
+    ;;
+    \?) info "Invalid option -${OPTARG}"
+  esac
+done
+
+
 # Setup checks
 set +e
+
+info "Checking for Docker installation..."
+check_binary "docker"
+
 info "Checking for minikube installation..."
 check_binary "minikube"
 
@@ -40,4 +56,4 @@ set -e
 
 
 # Minikube startup
-
+minikube start --nodes ${nodes}

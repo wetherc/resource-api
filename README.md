@@ -7,6 +7,11 @@ any nodes with at least 8GB RAM")
 
 ## Prerequisites
 
+  - **Docker**. Please see the [Get Docker](https://docs.docker.com/get-docker/)
+    page for installation instructions specific to your distribution. The Docker
+    daemon must be running before executing the `bootstrap.sh` script. Checking
+    the daemon's status and invoking it if dead is outside the scope of what I've
+    built here.
   - **Minikube**. If developing locally, Minikube probably is a good idea. The
     bootstrap script provided in this repository's root assumes a Minikube
     binary is available in your PATH. I developed this with Minikube 1.22.0,
