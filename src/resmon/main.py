@@ -1,6 +1,8 @@
 import threading
 import time
 import copy
+import re
+from datetime import datetime, timezone
 from kubernetes import client, config
 from flask import Flask, request
 
@@ -14,16 +16,41 @@ v1 = client.CoreV1Api()
 def update_node_list(k8s_client=v1):
     while True:
         nodes = k8s_client.list_node()
-        node_dict = {}
+        node_dict = {
+            'last_updated': datetime.now(tz=timezone.utc),
+            'nodes': {}
+        }
         for node in nodes.items:
-            node_dict[str(node.metadata.name)] = {
+            node_dict['nodes'][str(node.metadata.name)] = {
                 'cpu': float(node.status.capacity['cpu']),
-                'ram': int(node.status.capacity['memory'].strip('Ki'))
+                'ram': node.status.capacity['memory']
             }
 
         global NODES
         NODES = node_dict
         time.sleep(10)
+
+
+def _convert_stupid_si_units(value):
+    _si_map = {
+        'Ki': 2**10,
+        'Mi': 2**20,
+        'Gi': 2**30,
+        'Ti': 2**40,
+        'Pi': 2**50
+    }
+
+    match = re.match(r'([0-9]+)([a-zA-Z]+)', value)
+    if match:
+        assert len(match.groups()) == 2, f'Unable to identify SI suffix on {value}'
+    else:
+        raise ValueError(
+            'Are you running this on an internet-connected toaster with '
+            'like 5B memory or something?')
+
+    items = match.groups()
+    size_in_bytes = int(items[0]) * _si_map[items[1]]
+    return int(size_in_bytes * 10**-6)
 
 
 t = threading.Thread(target=update_node_list, args=(v1,))
@@ -35,17 +62,18 @@ t.setName('nodeUpdater')
 @app.route('/v1/resources', methods=['GET'])
 @app.route('/v1/resources/', methods=['GET'])
 def check_node_resources():
-    _cpu = request.args.get('cpu', 0., type=float)
-
-    # URL parameter is in MB, value returned from K8s API is in KB
-    _ram = request.args.get('ram', 0, type=int) * 1000
+    cpu = request.args.get('cpu', 0., type=float)
+    ram = request.args.get('ram', 0, type=int)
 
     node_status = copy.deepcopy(NODES)
-    for node_name, node_val in node_status.items():
-        if (node_val['cpu'] >= _cpu) and (node_val['ram'] >= _ram):
-            node_status[node_name]['status'] = 'OK'
+    for node_name, node_val in node_status['nodes'].items():
+        # URL parameter is in MB, value returned from K8s API is not
+        # https://github.com/kubernetes/community/blob/master/contributors/design-proposals/scheduling/resources.md#resource-quantities
+        _ram = _convert_stupid_si_units(node_val['ram'])
+        if (node_val['cpu'] >= cpu) and (_ram >= ram):
+            node_status['nodes'][node_name]['status'] = 'OK'
         else:
-            node_status[node_name]['status'] = 'NOTOKAY'
+            node_status['nodes'][node_name]['status'] = 'NOTOKAY'
 
     return node_status
 
