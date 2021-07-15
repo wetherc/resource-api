@@ -8,6 +8,7 @@
 !*.py
 !*.yaml
 !*.json
+!*.md
 
 # And certain dotfiles
 !.gitignore
