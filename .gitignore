@@ -9,6 +9,7 @@
 !*.yaml
 !*.json
 !*.md
+!*.sh
 
 # And certain dotfiles
 !.gitignore
