@@ -2,14 +2,24 @@ import threading
 import time
 import copy
 import re
+import logging
 from datetime import datetime, timezone
 from kubernetes import client, config
 from flask import Flask, request
 
 
 NODES = {}
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 app = Flask(__name__)
-config.load_kube_config()
+
+try:
+    config.load_incluster_config()
+except config.config_exception.ConfigException:
+    logger.warning(
+        'Failed to load incluster config. Loading from ~/.kube/config.'
+    )
+    config.load_kube_config()
 v1 = client.CoreV1Api()
 
 

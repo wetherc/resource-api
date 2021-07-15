@@ -18,6 +18,8 @@ any nodes with at least 8GB RAM")
     but any reasonably modern release should also work OOTB.
   - **kubectl**. Please reference the [installation docs](https://kubernetes.io/docs/tasks/tools/#kubectl)
     for your distribution.
+  - **skaffold**. Please reference the [installation docs](https://skaffold.dev/docs/install/)
+    for your distribution
 
 ## Usage
 

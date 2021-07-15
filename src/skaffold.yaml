@@ -1,0 +1,19 @@
+apiVersion: skaffold/v2beta19
+kind: Config
+metadata:
+  name: src
+build:
+  artifacts:
+  - image: resmon
+    context: resmon
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  kubectl:
+    manifests:
+    - resmon/deployment.yaml
+portForward:
+- resourceType: deployment
+  resourceName: resmon
+  port: 8080
+  localPort: 8080

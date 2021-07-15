@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: resmon
+  labels:
+    app: resmon
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    app: resmon
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resmon
+  labels:
+    app: resmon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resmon
+  template:
+    metadata:
+      labels:
+        app: resmon
+    spec:
+      containers:
+      - name: resmon
+        image: resmon

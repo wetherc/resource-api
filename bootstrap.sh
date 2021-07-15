@@ -9,7 +9,7 @@ info () {
 }
 
 success () {
-  printf "\r\033[2K[ \033[00;32mOK\033[0m ] $1\n"	  
+  printf "\r\033[2K[ \033[00;32mOK\033[0m ] $1\n"
 }
 
 fail () {
@@ -56,4 +56,17 @@ set -e
 
 
 # Minikube startup
-minikube start --nodes ${nodes} --profile resmon
+minikube start \
+  --profile resmon
+
+kubectl create -f resmon-service-role.yaml
+
+source <(minikube docker-env -p resmon)
+skaffold config set --kube-context resmon local-cluster true
+
+pushd src
+skaffold build
+skaffold run
+popd
+
+kubectl port-forward service/resmon 8080:8080
