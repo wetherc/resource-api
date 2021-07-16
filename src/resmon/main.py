@@ -23,7 +23,7 @@ except config.config_exception.ConfigException:
 v1 = client.CoreV1Api()
 
 
-def update_node_list(k8s_client=v1):
+def update_node_list(k8s_client: client.CoreV1Api=v1) -> None:
     while True:
         nodes = k8s_client.list_node()
         node_dict = {
@@ -41,7 +41,7 @@ def update_node_list(k8s_client=v1):
         time.sleep(10)
 
 
-def _convert_stupid_si_units(value):
+def _convert_stupid_si_units(value: str) -> int:
     _si_map = {
         'Ki': 2**10,
         'Mi': 2**20,
@@ -52,17 +52,32 @@ def _convert_stupid_si_units(value):
 
     match = re.match(r'([0-9]+)([a-zA-Z]+)', value)
     if match:
-        assert len(match.groups()) == 2, f'Unable to identify SI suffix on {value}'
+        assert len(match.groups()) == 2, f'Something weird is up with {value}'
     else:
         raise ValueError(
-            'Are you running this on an internet-connected toaster with '
-            'like 5B memory or something?')
+            'Are you running this on an internet-connected toaster? '
+            'Is all your memory swap? What\'s going on here?')
 
     items = match.groups()
-    size_in_bytes = int(items[0]) * _si_map[items[1]]
+    size_in_bytes = int(items[0]) * _si_map.get(items[1], -1)
+
+    if size_in_bytes < 0:
+        raise ValueError(
+            'Hmm... it looks like you\'ve got an exabyte or more of RAM. '
+            'Are you really sure about that? Seems like some tomfoolery '
+            'to me...'
+        )
     return int(size_in_bytes * 10**-6)
 
 
+# it's probably worth a TODO that I'll never follow up on to note
+# that I'm basically just yeeting this thread into the void and
+# never really circling back to check on whether or not, ya know,
+# it still is alive? So like maybe let's not use this on any
+# production systems or anything, but if nothing else there's
+# always the last-updated timestamp in the response body which
+# should give an indication of things being silently broken
+# if it's more than ~10 seconds apart from current time.
 t = threading.Thread(target=update_node_list, args=(v1,))
 t.daemon = True
 t.start()

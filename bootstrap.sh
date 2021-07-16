@@ -28,18 +28,6 @@ check_binary () {
 }
 
 
-# Get user inputs
-
-nodes=4
-while getopts "n:" opt; do
-  case ${opt} in
-    n) nodes="${OPTARG}"
-    ;;
-    \?) info "Invalid option -${OPTARG}"
-  esac
-done
-
-
 # Setup checks
 set +e
 
@@ -51,6 +39,9 @@ check_binary "minikube"
 
 info "Checking for kubectl installation"
 check_binary "kubectl"
+
+info "Checking for skaffold installation"
+check_binary "skaffold"
 
 set -e
 
@@ -69,4 +60,7 @@ skaffold build
 skaffold run
 popd
 
-kubectl port-forward service/resmon 8080:8080
+kubectl port-forward service/resmon 8080:8080 &
+
+minikube node add --profile resmon
+minikube node add --profile resmon
